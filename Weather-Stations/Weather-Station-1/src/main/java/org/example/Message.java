@@ -25,6 +25,5 @@ public class Message {
         this.battery_status = battery_status;
         this.status_timestamp = status_timestamp;
         this.weather = new Weather(humidity, temperature, wind_speed);
-
     }
 }
