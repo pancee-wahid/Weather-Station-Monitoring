@@ -35,51 +35,10 @@ public class Main {
                 Gson gson = new Gson();
                 String json = gson.toJson(msg);
                 System.out.println(json);
-                ProducerRecord<String, String> record = new ProducerRecord<>("my_first", json);
+                ProducerRecord<String, String> record = new ProducerRecord<>("weather-messages", json);
                 producer.send(record);
                 Thread.sleep(1000);
             }
         }
     }
 }
-
-
-/*
-public class Kafka_2 {
-
-    public static void main(String[] args) throws Exception{
-
-        // Set up Kafka consumer
-        Properties consumerProps = new Properties();
-        consumerProps.put("bootstrap.servers", "localhost:9092");
-        consumerProps.put("key.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
-        consumerProps.put("value.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
-        consumerProps.put("group.id", "test-group");
-        KafkaConsumer<String, String> consumer = new KafkaConsumer<>(consumerProps);
-
-        // Subscribe to Kafka topic
-        consumer.subscribe(Collections.singletonList("lab4-latency2"));
-
-        Long start;
-        for (int i = 0; i < differences.length; i++) {
-            // Send file contents to Kafka topic
-            ProducerRecord<String, String> record = new ProducerRecord<>("lab4-latency2", Long.toString(System.currentTimeMillis()), stringBuilder.toString());
-            start = System.currentTimeMillis();
-            producer.send(record);
-            System.out.println("Produce response time " + (System.currentTimeMillis() - start) + "ms");
-            // Receive messages from Kafka topic
-            start = System.currentTimeMillis();
-            ConsumerRecords<String, String> records = consumer.poll(Duration.ofMillis(10000));
-            System.out.println("Consume response time " + (System.currentTimeMillis() - start) + "ms");
-            for (ConsumerRecord<String, String> r : records) {
-                differences[i] = System.currentTimeMillis() - Long.parseLong(r.key());
-            }
-        }
-        Arrays.sort(differences);
-        System.out.println("The Median Latency is: " + differences[4999] + "ms");
-    }
-}
-
-
-
- */
