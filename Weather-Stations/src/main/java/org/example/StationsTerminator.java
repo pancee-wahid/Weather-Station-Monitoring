@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+// This class is used to terminate the 10 weather stations
 public class StationsTerminator {
 
     public static void main(String[] args) {
@@ -13,7 +14,6 @@ public class StationsTerminator {
         String pidLogPath = "D:\\Projects\\Weather-Station-Monitoring\\Weather-Stations\\logs\\pid";
         List<String> pid = new ArrayList<>();
         try {
-            // read the initial graph file
             BufferedReader reader = new BufferedReader(new FileReader(pidLogPath));
             String line;
             while ((line = reader.readLine()) != null)
@@ -24,6 +24,7 @@ public class StationsTerminator {
             e.printStackTrace();
         }
 
+        // terminate the weather station
         for (String i : pid) {
             try {
                 ProcessBuilder pb = new ProcessBuilder("taskkill", "/F", "/PID", i);
@@ -42,4 +43,3 @@ public class StationsTerminator {
         }
     }
 }
-

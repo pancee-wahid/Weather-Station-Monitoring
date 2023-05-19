@@ -6,11 +6,11 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+// This class is used to run the 10 weather stations
 public class StationsRunner {
     public static void main(String[] args) throws IOException {
         String pidLogPath = "D:\\Projects\\Weather-Station-Monitoring\\Weather-Stations\\logs\\pid";
 
-        // starting the 10 weather stations
         // add the 10 commands to be run
         List<String> commands = new ArrayList<>();
         for (int i = 1; i <= 10; i++)
