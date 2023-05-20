@@ -34,7 +34,7 @@ public class Main {
         while (true) {
             ConsumerRecords<String, String> records = consumer.poll(Duration.ofMillis(1000));
             for (ConsumerRecord<String, String> r : records) {
-                int startIndex = r.value().indexOf("humidity") + 10;
+                int startIndex = r.value().indexOf("humidity") + 9;
                 int endIndex = r.value().indexOf("," , startIndex);
                 int humidity = Integer.parseInt(r.value().substring(startIndex, endIndex));
 
@@ -44,7 +44,6 @@ public class Main {
                 }
             }
         }
-
 
     }
 }
