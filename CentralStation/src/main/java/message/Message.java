@@ -1,23 +1,24 @@
-package org.example;
+package message;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class Message {
     @JsonProperty("station_id")
-    long station_id;
+    public long station_id;
 
     @JsonProperty("s_no")
-    long s_no;
+    public long s_no;
 
     @JsonProperty("battery_status")
-    String battery_status;
+    public String battery_status;
 
     @JsonProperty("status_timestamp")
-    long status_timestamp;
-    @JsonProperty("weather")
-    Weather weather;
+    public long status_timestamp;
 
-    Message(long station_id, long s_no, String battery_status, long status_timestamp, int humidity, int temperature, int wind_speed) {
+    @JsonProperty("weather")
+    public Weather weather;
+
+    public Message(long station_id, long s_no, String battery_status, long status_timestamp, int humidity, int temperature, int wind_speed) {
         this.station_id = station_id;
         this.s_no = s_no;
         this.battery_status = battery_status;
@@ -26,7 +27,7 @@ public class Message {
 
     }
 
-    Message(){
+    public Message(){
 
     }
 }

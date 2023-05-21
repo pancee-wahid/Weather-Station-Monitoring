@@ -1,24 +1,24 @@
-package org.example;
+package message;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-class Weather {
+public class Weather {
         @JsonProperty("humidity")
-        int humidity;
+        public int humidity;
 
         @JsonProperty("temperature")
-        int temperature;
+        public int temperature;
 
         @JsonProperty("wind_speed")
-        int wind_speed;
+        public int wind_speed;
 
-        Weather(int humidity, int temperature, int wind_speed) {
+        public Weather(int humidity, int temperature, int wind_speed) {
             this.humidity = humidity;
             this.temperature = temperature;
             this.wind_speed = wind_speed;
         }
 
-        Weather(){
+        public Weather(){
 
         }
     }

@@ -1,7 +1,8 @@
-package org.example;
+package archiving;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import message.Message;
 import org.apache.avro.Schema;
 import org.apache.avro.generic.GenericData;
 import org.apache.hadoop.conf.Configuration;
@@ -20,8 +21,9 @@ import java.text.SimpleDateFormat;
 import java.time.Duration;
 import java.util.*;
 
-public class Main {
-    final static String parquetFilesPath = "D:\\Projects\\Weather-Station-Monitoring\\Archiving\\parquet-files\\";
+public class Archive {
+    final static String parquetFilesPath = "D:\\Projects\\Weather-Station-Monitoring\\CentralStation\\parquet-files\\";
+    final static int batchSize = 10000;
     static SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
     static SimpleDateFormat hourFormat = new SimpleDateFormat("HH-mm");
 
@@ -75,7 +77,7 @@ public class Main {
                 }
                 sum++;
 
-                if (sum >= 10000) {
+                if (sum >= batchSize) {
                     System.out.println("Entering writeToParquet()");
                     writeToParquet(stationsBatches, schema);
                     for (int i = 0; i < 10; i++)
