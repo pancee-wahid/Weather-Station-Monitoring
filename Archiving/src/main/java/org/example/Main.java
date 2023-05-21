@@ -29,6 +29,7 @@ public class Main {
     static ObjectMapper mapper = new ObjectMapper();
 
     public static void main(String[] args) throws IOException {
+
         // set up Kafka consumer
         Properties ConsumerProperties = new Properties();
         ConsumerProperties.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, "127.0.0.1:9092");
@@ -74,7 +75,7 @@ public class Main {
                 }
                 sum++;
 
-                if (sum >= 1000) {
+                if (sum >= 10000) {
                     System.out.println("Entering writeToParquet()");
                     writeToParquet(stationsBatches, schema);
                     for (int i = 0; i < 10; i++)
@@ -90,24 +91,26 @@ public class Main {
         String formattedTime = hourFormat.format(date);
         int minIndex = formattedTime.indexOf('-') + 1;
         int minute = Integer.parseInt(formattedTime.substring(minIndex));
-        minute -= (minute % 3);
+        minute -= (minute % 5);
         String minString = minute < 10 ? "0" + minute : String.valueOf(minute);
         return dateFormat.format(date) + "__" + formattedTime.substring(0, minIndex) + minString;
     }
 
 
     private static void writeToParquet(List<Map<String, List<String>>> stationsBatches, Schema schema) throws IOException {
-        for (int i = 1; i <= 10 & (i < 10 && !stationsBatches.get(i - 1).isEmpty()); i++) {
+        for (int i = 1; i <= 10 && !stationsBatches.get(i - 1).isEmpty(); i++) {
             for (Map.Entry<String, List<String>> stationPartition : stationsBatches.get(i - 1).entrySet()) {
                 // get the path of the file to write to
-                String filePath = parquetFilesPath + "s" + i + "\\s" + i + "__" + stationPartition.getKey() + "__p0"  + ".parquet";
+                String filePath = parquetFilesPath + "s" + i + "\\s" + i + "__" + stationPartition.getKey() + "__p0" + ".parquet";
                 File file = new File(filePath);
+                System.out.println(filePath);
                 while (file.exists()) {
-                    filePath = filePath.substring(0, filePath.indexOf('p') + 1)
-                            + (Integer.parseInt(filePath.substring(filePath.indexOf('p') + 1, filePath.indexOf(".parquet"))) + 1)
+                    filePath = filePath.substring(0, filePath.indexOf("__p") + 3)
+                            + (Integer.parseInt(filePath.substring(filePath.indexOf("__p") + 3, filePath.indexOf(".parquet"))) + 1)
                             + ".parquet";
                     file = new File(filePath);
                 }
+                System.out.println(filePath);
                 Path path = new Path(filePath);
 
                 // write to (station i with specified time) parquet file
@@ -133,7 +136,6 @@ public class Main {
             }
         }
     }
-
 
     private static Schema parseSchema() {
         String schemaJson = "{\n" +
@@ -177,20 +179,4 @@ public class Main {
         record.put("weather", weatherRecord);
         return record;
     }
-
 }
-
-/*
-{
-"station_id": 1, // Long
-"s_no": 1, // Long auto-incremental with each message per service
-"battery_status": "low", // String of (low, medium, high)
-"status_timestamp": 1681521224, // Long Unix timestamp
-"weather": {
-"humidity": 35, // Integer percentage
-"temperature": 100, // Integer in fahrenheit
-"wind_speed": 13, // Integer km/h
-}
-}
-
- */
