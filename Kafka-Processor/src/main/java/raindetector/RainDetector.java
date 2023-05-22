@@ -1,6 +1,9 @@
-package org.example;
+package raindetector;
 
-import com.google.gson.Gson;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import message.Message;
 import org.apache.kafka.clients.consumer.*;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerConfig;
@@ -10,8 +13,9 @@ import java.time.Duration;
 import java.util.*;
 import java.lang.*;
 
-public class Main {
-    public static void main(String[] args) {
+
+public class RainDetector {
+    public static void main(String[] args) throws JsonProcessingException {
         // set up Kafka producer
         Properties producerProperties = new Properties();
         producerProperties.setProperty(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, "127.0.0.1:9092");
@@ -30,16 +34,16 @@ public class Main {
         // subscribe to Kafka topic
         consumer.subscribe(Collections.singletonList("weather-messages"));
 
+        ObjectMapper mapper = new ObjectMapper();
+
         // main loop
         while (true) {
             ConsumerRecords<String, String> records = consumer.poll(Duration.ofMillis(1000));
             for (ConsumerRecord<String, String> r : records) {
-                int startIndex = r.value().indexOf("humidity") + 9;
-                int endIndex = r.value().indexOf("," , startIndex);
-                int humidity = Integer.parseInt(r.value().substring(startIndex, endIndex));
+                Message message = mapper.readValue(r.value(), Message.class);
 
-                if (humidity > 70) {
-                    ProducerRecord<String, String> record = new ProducerRecord<>("raining-detection", r.value());
+                if (message.weather.humidity > 70) {
+                    ProducerRecord<String, String> record = new ProducerRecord<>("rain-detection", r.value());
                     producer.send(record);
                 }
             }

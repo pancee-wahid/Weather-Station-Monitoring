@@ -1,4 +1,4 @@
-package org.example;
+package weatherstations;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
