@@ -1,4 +1,4 @@
-package archiving;
+package centralstation.archiving;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -22,8 +22,8 @@ import java.time.Duration;
 import java.util.*;
 
 public class Archive {
-    final static String parquetFilesPath = "D:\\Projects\\Weather-Station-Monitoring\\CentralStation\\parquet-files\\";
-    final static int batchSize = 10000;
+    final static String PARQUET_FILES_PATH = "D:\\Projects\\Weather-Station-Monitoring\\CentralStation\\parquet-files\\";
+    final static int BATCH_SIZE = 10000;
     static SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
     static SimpleDateFormat hourFormat = new SimpleDateFormat("HH-mm");
 
@@ -46,6 +46,7 @@ public class Archive {
         // parse the schema
         Schema schema = parseSchema();
 
+        // ToDo : change the list to be map from station id to map of time->list_of_msgs_at_this_time
         // store 10k messages temporarily to be written to parquet files as one batch
         List<Map<String, List<String>>> stationsBatches = new ArrayList<>();
         for (int i = 0; i < 10; i++)
@@ -77,7 +78,7 @@ public class Archive {
                 }
                 sum++;
 
-                if (sum >= batchSize) {
+                if (sum >= BATCH_SIZE) {
                     System.out.println("Entering writeToParquet()");
                     writeToParquet(stationsBatches, schema);
                     for (int i = 0; i < 10; i++)
@@ -103,7 +104,7 @@ public class Archive {
         for (int i = 1; i <= 10 && !stationsBatches.get(i - 1).isEmpty(); i++) {
             for (Map.Entry<String, List<String>> stationPartition : stationsBatches.get(i - 1).entrySet()) {
                 // get the path of the file to write to
-                String filePath = parquetFilesPath + "s" + i + "\\s" + i + "__" + stationPartition.getKey() + "__p0" + ".parquet";
+                String filePath = PARQUET_FILES_PATH + "s" + i + "\\s" + i + "__" + stationPartition.getKey() + "__p0" + ".parquet";
                 File file = new File(filePath);
                 System.out.println(filePath);
                 while (file.exists()) {
