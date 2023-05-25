@@ -15,11 +15,11 @@ import java.util.Collections;
 import java.util.Properties;
 
 public class CentralStation {
-    private static final String BITCASK_LOG_PATH = "D:\\Projects\\Weather-Station-Monitoring\\Central-Station\\bitcask\\";
-    private static final int MAX_LOG_FILE_SIZE = 500000; // 0.5 MB
-    private static final int MAX_LOG_FILE_COUNT = 5; // maximum number of log files to keep before starting compaction
+    private static final String BITCASK_LOG_PATH = "/home/mohamed-yasser/Projects/Weather Station/Weather-Station-Monitoring/Central-Station/bitcask/";
+    private static final int MAX_LOG_FILE_SIZE = 100000; // 0.5 MB
+    private static final int MAX_LOG_FILE_COUNT = 2; // maximum number of log files to keep before starting compaction
     private static final int NUM_OF_STATIONS = 10;
-    private static final String PARQUET_FILES_PATH = "D:\\Projects\\Weather-Station-Monitoring\\Central-Station\\parquet-files-3\\";
+    private static final String PARQUET_FILES_PATH = "/home/mohamed-yasser/Projects/Weather Station/Weather-Station-Monitoring/Central-Station/parquet-files-3/";
     private static final int BATCH_SIZE = 10000;
 
     private static ObjectMapper mapper = new ObjectMapper();
@@ -41,6 +41,7 @@ public class CentralStation {
 
         // main loop
         while (true) {
+
             ConsumerRecords<String, String> records = consumer.poll(Duration.ofMillis(1000));
             for (ConsumerRecord<String, String> r : records) {
                 if (!r.value().startsWith("{\"station_id\""))

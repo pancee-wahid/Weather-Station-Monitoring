@@ -3,6 +3,7 @@ package centralstation.bitcask;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 public class Bitcask {
@@ -76,6 +77,7 @@ public class Bitcask {
                 // change the current log file name
                 currentLogName = LOG_FILE_PREFIX + appendingTimestamp;
                 numberOfCurrentLogs++;
+                currentByte = 0;
                 if (numberOfCurrentLogs > MAX_LOG_FILE_COUNT)
                     runCompaction();
             }
@@ -140,7 +142,7 @@ public class Bitcask {
         file.renameTo(new File(mergedFilePath.replace("merged_", "")));
         file = new File(mergedHintFilePath);
         file.renameTo(new File(mergedHintFilePath.replace("merged_", "")));
-        numberOfCurrentLogs -= MAX_LOG_FILE_COUNT;
+        numberOfCurrentLogs = numberOfCurrentLogs - MAX_LOG_FILE_COUNT + 1;
     }
 
     private List<String> getHintFilesNames() {
@@ -158,7 +160,7 @@ public class Bitcask {
     }
 
     private void merge(String mergedFilePath, String mergedHintFilePath, Map<Long, RecentLocation> compactedHintFile) throws IOException {
-        RandomAccessFile raf;
+        FileInputStream fis;
         long currentByte = 0;
         System.out.println("mergedFilePath:\n" + mergedFilePath);
         String fileID = mergedFilePath.substring(mergedFilePath.indexOf(LOG_FILE_PREFIX) + LOG_FILE_PREFIX.length(), mergedFilePath.indexOf(FILES_EXTENSION));
@@ -171,25 +173,30 @@ public class Bitcask {
         FileOutputStream fosHint = new FileOutputStream(mergedHintFilePath, true);
         DataOutputStream dosHint = new DataOutputStream(fosHint);
 
+
         for (Map.Entry<Long, RecentLocation> entry : compactedHintFile.entrySet()) {
             stationID = entry.getKey();
             timestamp = entry.getValue().timestamp;
             valueSize = entry.getValue().valueSize;
             valueOffset = entry.getValue().valueOffset;
 
-            String filename = BITCASK_LOG_PATH + LOG_FILE_PREFIX + entry.getValue().fileID + FILES_EXTENSION;  // Replace with the name of your file
+            String filename = BITCASK_LOG_PATH + LOG_FILE_PREFIX + entry.getValue().fileID + FILES_EXTENSION;
+            System.out.println("This is the file name "+filename);
             try {
                 // read from target file
-                raf = new RandomAccessFile(filename, "r");
-                raf.seek(valueOffset);
+                fis = new FileInputStream(filename);
+                fis.skip(valueOffset);
                 byte[] message = new byte[valueSize];
-                raf.read(message);
-                raf.close();
+                fis.read(message);
+
+                fis.close();
                 // write to merged file
                 dosSegment.writeLong(stationID); // station_id 8
                 dosSegment.writeLong(timestamp); // timestamp 8
                 dosSegment.writeShort(valueSize); // value_size 2
                 dosSegment.write(message); // message massage.length
+
+
                 // write to merged hint file
                 dosHint.writeLong(stationID); // station
                 dosHint.writeLong(timestamp); // timestamp

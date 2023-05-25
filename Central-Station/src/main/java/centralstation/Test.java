@@ -7,7 +7,7 @@ import java.nio.charset.StandardCharsets;
 
 public class Test {
     public static void main(String[] args) throws FileNotFoundException {
-        String file = "D:\\Projects\\merged_log_1685017093741.bin";
+        String file = "/home/mohamed-yasser/Projects/Weather Station/Weather-Station-Monitoring/Central-Station/bitcask/log_1685052422111.bin";
         long stationID, timestamp;
         short valueSize;
         try (FileInputStream fis = new FileInputStream(file)) {
