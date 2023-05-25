@@ -1,16 +1,12 @@
 package centralstation.archiving;
-import message.Message;
+
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import centralstation.bitcask.Bitcask_Old;
+import message.Message;
 import org.apache.avro.Schema;
 import org.apache.avro.generic.GenericData;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
-import org.apache.kafka.clients.consumer.ConsumerRecord;
-import org.apache.kafka.clients.consumer.ConsumerRecords;
-import org.apache.kafka.clients.consumer.KafkaConsumer;
-import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.parquet.avro.AvroParquetWriter;
 import org.apache.parquet.hadoop.ParquetWriter;
 import org.apache.parquet.hadoop.metadata.CompressionCodecName;
@@ -18,82 +14,32 @@ import org.apache.parquet.hadoop.metadata.CompressionCodecName;
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
-import java.time.Duration;
 import java.util.*;
 
 public class Archive {
-    final static String PARQUET_FILES_PATH = "D:\\Projects\\Weather-Station-Monitoring\\Central-Station\\parquet-files\\";
-    final static int BATCH_SIZE = 10000;
-    static SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-    static SimpleDateFormat hourFormat = new SimpleDateFormat("HH-mm");
+    private String PARQUET_FILES_PATH;
+    private int BATCH_SIZE;
+    private SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+    private SimpleDateFormat hourFormat = new SimpleDateFormat("HH-mm");
+    private ObjectMapper mapper = new ObjectMapper();
+    private List<Map<String, List<String>>> stationsBatches;
+    private int collectedMessages;
+    private Schema schema;
 
-    // object mapper will be used to get Message object from json string
-    static ObjectMapper mapper = new ObjectMapper();
-
-    public static void main(String[] args) throws IOException {
-
-        // set up Kafka consumer
-        Properties ConsumerProperties = new Properties();
-        ConsumerProperties.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, "127.0.0.1:9092");
-        ConsumerProperties.put("key.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
-        ConsumerProperties.put("value.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
-        ConsumerProperties.put("group.id", "test-group");
-        KafkaConsumer<String, String> consumer = new KafkaConsumer<>(ConsumerProperties);
-
-        // subscribe to Kafka topic
-        consumer.subscribe(Collections.singletonList("weather-messages"));
-
+    public Archive(String PARQUET_FILES_PATH, int BATCH_SIZE) {
+        this.PARQUET_FILES_PATH = PARQUET_FILES_PATH;
+        this.BATCH_SIZE = BATCH_SIZE;
+        this.collectedMessages = 0;
         // parse the schema
-        Schema schema = parseSchema();
-
-        // Bitcask
-        Bitcask_Old bitcask = new Bitcask_Old();
-
+        schema = parseSchema();
         // ToDo : change the list to be map from station id to map of time->list_of_msgs_at_this_time
         // store 10k messages temporarily to be written to parquet files as one batch
-        List<Map<String, List<String>>> stationsBatches = new ArrayList<>();
+        stationsBatches = new ArrayList<>();
         for (int i = 0; i < 10; i++)
             stationsBatches.add(new HashMap<>());
-
-        int sum = 0;
-
-        // main loop
-        while (true) {
-            ConsumerRecords<String, String> records = consumer.poll(Duration.ofMillis(1000));
-            for (ConsumerRecord<String, String> r : records) {
-                if (!r.value().startsWith("{\"station_id\""))
-                    break;
-                Message message = mapper.readValue(r.value(), Message.class);
-                String key = getMapKey(message.status_timestamp);
-
-                bitcask.append(message.station_id, r.value());
-                if (stationsBatches.get((int) message.station_id - 1).containsKey(key)) {
-                    stationsBatches.get((int) message.station_id - 1)
-                            .get(key)
-                            .add(r.value());
-                } else {
-                    stationsBatches.get((int) message.station_id - 1)
-                            .put(key, new ArrayList<>());
-
-                    stationsBatches.get((int) message.station_id - 1)
-                            .get(key)
-                            .add(r.value());
-
-                }
-                sum++;
-
-                if (sum >= BATCH_SIZE) {
-                    System.out.println("Entering writeToParquet()");
-                    writeToParquet(stationsBatches, schema);
-                    for (int i = 0; i < 10; i++)
-                        stationsBatches.get(i).clear();
-                    sum = 0;
-                }
-            }
-        }
     }
 
-    private static String getMapKey(long statusTimestamp) {
+    private String getMapKey(long statusTimestamp) {
         Date date = new Date(statusTimestamp);
         String formattedTime = hourFormat.format(date);
         int minIndex = formattedTime.indexOf('-') + 1;
@@ -104,7 +50,7 @@ public class Archive {
     }
 
 
-    private static void writeToParquet(List<Map<String, List<String>>> stationsBatches, Schema schema) throws IOException {
+    private void writeToParquet(List<Map<String, List<String>>> stationsBatches, Schema schema) throws IOException {
         for (int i = 1; i <= 10 && !stationsBatches.get(i - 1).isEmpty(); i++) {
             for (Map.Entry<String, List<String>> stationPartition : stationsBatches.get(i - 1).entrySet()) {
                 // get the path of the file to write to
@@ -144,7 +90,7 @@ public class Archive {
         }
     }
 
-    private static Schema parseSchema() {
+    private Schema parseSchema() {
         String schemaJson = "{\n" +
                 "  \"type\": \"record\",\n" +
                 "  \"name\": \"WeatherStationMessage\",\n" +
@@ -172,7 +118,7 @@ public class Archive {
         return parser.parse(schemaJson);
     }
 
-    private static GenericData.Record generateRecord(Schema schema, Message message) throws JsonProcessingException {
+    private GenericData.Record generateRecord(Schema schema, Message message) throws JsonProcessingException {
         GenericData.Record record = new GenericData.Record(schema);
         record.put("station_id", message.station_id);
         record.put("s_no", message.s_no);
@@ -185,5 +131,33 @@ public class Archive {
         weatherRecord.put("wind_speed", message.weather.wind_speed);
         record.put("weather", weatherRecord);
         return record;
+    }
+
+    public void append(String value) throws IOException {
+        Message message = mapper.readValue(value, Message.class);
+        String key = getMapKey(message.status_timestamp);
+
+        if (stationsBatches.get((int) message.station_id - 1).containsKey(key)) {
+            stationsBatches.get((int) message.station_id - 1)
+                    .get(key)
+                    .add(value);
+        } else {
+            stationsBatches.get((int) message.station_id - 1)
+                    .put(key, new ArrayList<>());
+
+            stationsBatches.get((int) message.station_id - 1)
+                    .get(key)
+                    .add(value);
+
+        }
+        collectedMessages++;
+
+        if (collectedMessages >= BATCH_SIZE) {
+            System.out.println("Entering writeToParquet()");
+            writeToParquet(stationsBatches, schema);
+            for (int i = 0; i < 10; i++)
+                stationsBatches.get(i).clear();
+            collectedMessages = 0;
+        }
     }
 }
