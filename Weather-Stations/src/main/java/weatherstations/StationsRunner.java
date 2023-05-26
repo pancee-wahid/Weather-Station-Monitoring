@@ -52,17 +52,6 @@ public class StationsRunner {
             }
         }
 
-//        for (Process process : processes) {
-//            Thread thread = new Thread(() -> {
-//                try {
-//                    process.waitFor();
-//                } catch (InterruptedException e) {
-//                    e.printStackTrace();
-//                }
-//            });
-//            thread.start();
-//        }
-
         System.out.println("All weather stations started.");
     }
 }

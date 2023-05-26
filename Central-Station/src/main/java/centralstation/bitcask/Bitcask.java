@@ -3,8 +3,9 @@ package centralstation.bitcask;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.*;
-import java.nio.charset.StandardCharsets;
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class Bitcask {
     private final String HINT_FILE_PREFIX = "hint_";
@@ -21,7 +22,9 @@ public class Bitcask {
     // Long: station_id , Location: location of its most recent value
     private Map<Long, RecentLocation> inMemoryHashmap;
 
-    public Bitcask(String BITCASK_LOG_PATH, int MAX_LOG_FILE_SIZE, int MAX_LOG_FILE_COUNT, int NUM_OF_STATIONS) {
+    private boolean recovered;
+
+    public Bitcask(String BITCASK_LOG_PATH, int MAX_LOG_FILE_SIZE, int MAX_LOG_FILE_COUNT, int NUM_OF_STATIONS) throws IOException {
         this.BITCASK_LOG_PATH = BITCASK_LOG_PATH;
         this.MAX_LOG_FILE_SIZE = MAX_LOG_FILE_SIZE;
         this.MAX_LOG_FILE_COUNT = MAX_LOG_FILE_COUNT;
@@ -30,6 +33,137 @@ public class Bitcask {
         currentByte = 0;
         numberOfCurrentLogs = 0;
         currentLogName = "";
+        recovered = false;
+        recover();
+    }
+
+    /**
+     * temporarily delete all
+     */
+    private void recover() {
+        System.out.println("entered recover()");
+        File folder = new File(BITCASK_LOG_PATH);
+        File[] allFiles = folder.listFiles();
+        if (allFiles == null) {
+            System.out.println("No log files in \"" + BITCASK_LOG_PATH + "\"");
+            return;
+        }
+        List<String> hintFilesNames = new ArrayList<>();
+        for (File file : allFiles) {
+            if (file.isFile())
+                file.delete();
+        }
+    }
+
+//    private void recover() throws IOException {
+//        // get log and hint files in bitcask folder
+//        File folder = new File(BITCASK_LOG_PATH);
+//        File[] allFiles = folder.listFiles();
+//        if (allFiles == null) {
+//            System.out.println("No log files in \"" + BITCASK_LOG_PATH + "\" to recover from.\n Starting Normally.");
+//            return;
+//        }
+//        Pattern pattern = Pattern.compile("\\d+");
+//        List<Long> hintFiles = new ArrayList<>();
+//        List<Long> logFiles = new ArrayList<>();
+//        Matcher matcher;
+//        long id;
+//        for (File file : allFiles) {
+//            if (!file.isFile())
+//                continue;
+//            // ---- this needs to be edited
+//            if (file.getName().contains("merged")) {
+//                file.renameTo(new File(file.getName().replace("merged_", "")));
+//            }
+//            // ----
+//            matcher = pattern.matcher(file.getName());
+//            if (!matcher.find())
+//                continue;
+//            id = Long.parseLong(matcher.group());
+//            if (file.getName().contains(HINT_FILE_PREFIX))
+//                hintFiles.add(id);
+//            else if (file.getName().contains(LOG_FILE_PREFIX))
+//                logFiles.add(id);
+//        }
+//
+//        // ---- discover why we need this for the recovery to run correctly
+//        if (logFiles.size() == 0) {
+//            System.out.println("No log files in \"" + BITCASK_LOG_PATH + "\" to recover from.\n Starting Normally.");
+//            return;
+//        }
+//        if (hintFiles.size() == 0) {
+//            System.out.println("No log files in \"" + BITCASK_LOG_PATH + "\" to recover from.\n Starting Normally.");
+//            return;
+//        }
+//
+//        // get the files that don't have a hint file
+//        List<Long> filesWithoutHint = new ArrayList<>();
+//        for (Long f : logFiles) {
+//            if (!hintFiles.contains(f))
+//                filesWithoutHint.add(f);
+//        }
+//
+//        // construct a hashmap for the files that don't have hint files
+//        Map<Long, RecentLocation> compactedHintFile = new HashMap<>();
+//        for (Long f : filesWithoutHint)
+//            readLogFile(f, compactedHintFile);
+//
+//        // merge these hint files
+//        // get the recent locations of all keys using the saved hint files
+//        String fileName;
+//        for (int i = hintFiles.size() - 1; i >= 0; i--) {
+//            fileName = BITCASK_LOG_PATH + HINT_FILE_PREFIX + LOG_FILE_PREFIX + hintFiles.get(i) + FILES_EXTENSION;
+//            readHintFile(fileName, compactedHintFile);
+//        }
+//
+//        // generate the new merged file and the new hint file
+//        Collections.sort(logFiles);
+//        String mergedFilePath = BITCASK_LOG_PATH + "merged_" + LOG_FILE_PREFIX + logFiles.get(0) + FILES_EXTENSION;
+//        String mergedHintFilePath = BITCASK_LOG_PATH + "merged_" + HINT_FILE_PREFIX + LOG_FILE_PREFIX + logFiles.get(0) + FILES_EXTENSION;
+//        merge(mergedFilePath, mergedHintFilePath, compactedHintFile);
+//
+//        // delete and rename
+//        deleteOldFiles();
+//        File file = new File(mergedFilePath);
+//        file.renameTo(new File(mergedFilePath.replace("merged_", "")));
+//        file = new File(mergedHintFilePath);
+//        file.renameTo(new File(mergedHintFilePath.replace("merged_", "")));
+//        recovered = true;
+//    }
+
+    private void deleteOldFiles() {
+        File folder = new File(BITCASK_LOG_PATH);
+        File[] files = folder.listFiles();
+        if (files == null) {
+            System.out.println("No log files in \"" + BITCASK_LOG_PATH + "\" to delete.");
+            return;
+        }
+        for (File file : files) {
+            if (file.isFile() && (!file.getName().startsWith("merged") && !file.getName().contains(currentLogName)))
+                file.delete();
+        }
+    }
+    private void readLogFile(Long fileID, Map<Long, RecentLocation> map) {
+        long stationID, timestamp;
+        long valueOffset = 0;
+        short valueSize;
+        byte[] bytes;
+        String filePath = BITCASK_LOG_PATH + LOG_FILE_PREFIX + fileID + FILES_EXTENSION;
+        try (FileInputStream fis = new FileInputStream(filePath)) {
+            DataInputStream dis = new DataInputStream(fis);
+            while (dis.available() > 0) {
+                stationID = dis.readLong();
+                timestamp = dis.readLong();
+                valueSize = dis.readShort();
+                bytes = new byte[valueSize];
+                dis.read(bytes);
+                if (!(map.containsKey(stationID) && map.get(stationID).timestamp > timestamp))
+                    map.put(stationID, new RecentLocation(timestamp, fileID, valueSize, valueOffset + 18));
+            }
+            dis.close();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     private void readHintFile(String hintFilePath, Map<Long, RecentLocation> map) throws IOException {
@@ -64,22 +198,27 @@ public class Bitcask {
     }
 
     public void append(long stationID, String message) {
+        System.out.println("entered append()");
         long appendingTimestamp = System.currentTimeMillis();
         int recordLength = 18 + message.length();
         try {
-            // check if it's the first segment or
-            // the segment reached it's maximum size to create the next segment
-            File file = new File(BITCASK_LOG_PATH + currentLogName + FILES_EXTENSION);
-            if (numberOfCurrentLogs == 0 || (file.exists() && file.length() + recordLength > MAX_LOG_FILE_SIZE)) {
-                // write hint file for the current hashmap to the disk
-                if (numberOfCurrentLogs != 0)
-                    writeHintFile(BITCASK_LOG_PATH + HINT_FILE_PREFIX + currentLogName + FILES_EXTENSION, inMemoryHashmap);
-                // change the current log file name
+            if (recovered || numberOfCurrentLogs == 0) {
+                recovered = false;
                 currentLogName = LOG_FILE_PREFIX + appendingTimestamp;
-                numberOfCurrentLogs++;
+                File folder = new File(BITCASK_LOG_PATH);
+                File[] allFiles = folder.listFiles();
+                numberOfCurrentLogs = allFiles == null? 0 : 1;
                 currentByte = 0;
-                if (numberOfCurrentLogs > MAX_LOG_FILE_COUNT)
-                    runCompaction();
+            } else {
+                File file = new File(BITCASK_LOG_PATH + currentLogName + FILES_EXTENSION);
+                if (file.exists() && (file.length() + recordLength > MAX_LOG_FILE_SIZE)) {
+                    writeHintFile(BITCASK_LOG_PATH + HINT_FILE_PREFIX + currentLogName + FILES_EXTENSION, inMemoryHashmap);
+                    currentLogName = LOG_FILE_PREFIX + appendingTimestamp;
+                    numberOfCurrentLogs++;
+                    currentByte = 0;
+                    if (numberOfCurrentLogs > MAX_LOG_FILE_COUNT)
+                        runCompaction();
+                }
             }
 
             // append to the current segment
@@ -90,6 +229,8 @@ public class Bitcask {
             dos.writeShort(message.length()); // 2 bytes
             dos.writeBytes(message); // message.length() bytes
             dos.close();
+
+            System.out.println("data wrote to: " + BITCASK_LOG_PATH + currentLogName + FILES_EXTENSION);
 
             // update the in-memory hashmap
             long fileID = Long.parseLong(currentLogName.substring(currentLogName.indexOf("_") + 1));
@@ -103,6 +244,7 @@ public class Bitcask {
     }
 
     private void runCompaction() throws IOException {
+        System.out.println("entered runCompaction()");
         // get hint files of old segments
         List<String> hintFilesNames = getHintFilesNames();
 
@@ -117,27 +259,8 @@ public class Bitcask {
         String mergedHintFilePath = BITCASK_LOG_PATH + "merged_" + hintFilesNames.get(0);
         merge(mergedFilePath, mergedHintFilePath, compactedHintFile);
 
-
-//        for (Map.Entry<Long, RecentLocation> entry : compactedHintFile.entrySet()) {
-//            long id = entry.getKey();
-//            RecentLocation rc = entry.getValue();
-//            synchronized (inMemoryHashmap) {
-//                if (inMemoryHashmap.containsKey(id) && inMemoryHashmap.get(id).timestamp <= rc.timestamp)
-//                    inMemoryHashmap.put(id, rc);
-//            }
-//        }
-
         // delete old segments and hint files
-        File folder = new File(BITCASK_LOG_PATH);
-        File[] files = folder.listFiles();
-        if (files == null) {
-            System.out.println("No log files in \"" + BITCASK_LOG_PATH + "\"");
-            return;
-        }
-        for (File file : files) {
-            if (file.isFile() && (!file.getName().startsWith("merged") && !file.getName().contains(currentLogName)))
-                file.delete();
-        }
+        deleteOldFiles();
         File file = new File(mergedFilePath);
         file.renameTo(new File(mergedFilePath.replace("merged_", "")));
         file = new File(mergedHintFilePath);
@@ -162,7 +285,6 @@ public class Bitcask {
     private void merge(String mergedFilePath, String mergedHintFilePath, Map<Long, RecentLocation> compactedHintFile) throws IOException {
         FileInputStream fis;
         long currentByte = 0;
-        System.out.println("mergedFilePath:\n" + mergedFilePath);
         String fileID = mergedFilePath.substring(mergedFilePath.indexOf(LOG_FILE_PREFIX) + LOG_FILE_PREFIX.length(), mergedFilePath.indexOf(FILES_EXTENSION));
         long stationID, timestamp, valueOffset, newValueOffset;
         short valueSize;
@@ -173,7 +295,6 @@ public class Bitcask {
         FileOutputStream fosHint = new FileOutputStream(mergedHintFilePath, true);
         DataOutputStream dosHint = new DataOutputStream(fosHint);
 
-
         for (Map.Entry<Long, RecentLocation> entry : compactedHintFile.entrySet()) {
             stationID = entry.getKey();
             timestamp = entry.getValue().timestamp;
@@ -181,21 +302,19 @@ public class Bitcask {
             valueOffset = entry.getValue().valueOffset;
 
             String filename = BITCASK_LOG_PATH + LOG_FILE_PREFIX + entry.getValue().fileID + FILES_EXTENSION;
-            System.out.println("This is the file name "+filename);
             try {
                 // read from target file
                 fis = new FileInputStream(filename);
                 fis.skip(valueOffset);
                 byte[] message = new byte[valueSize];
                 fis.read(message);
-
                 fis.close();
+
                 // write to merged file
                 dosSegment.writeLong(stationID); // station_id 8
                 dosSegment.writeLong(timestamp); // timestamp 8
                 dosSegment.writeShort(valueSize); // value_size 2
                 dosSegment.write(message); // message massage.length
-
 
                 // write to merged hint file
                 dosHint.writeLong(stationID); // station
@@ -205,6 +324,7 @@ public class Bitcask {
                 newValueOffset = currentByte + 18;
                 dosHint.writeLong(newValueOffset); // value offset
                 currentByte += 18 + message.length;
+
                 // update hashmap if needed
                 synchronized (inMemoryHashmap) {
                     if (inMemoryHashmap.containsKey(stationID) && inMemoryHashmap.get(stationID).timestamp <= timestamp)
