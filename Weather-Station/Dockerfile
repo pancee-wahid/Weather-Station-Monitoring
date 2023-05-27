@@ -4,6 +4,4 @@ WORKDIR /usr/src/myapp
 
 COPY out ./out
 
-EXPOSE 8080
-
-CMD ["java", "-jar", "out/artifacts/Weather_Station_jar/Weather-Station.jar","10"]
+ENTRYPOINT sleep 120 && java -jar out/artifacts/Weather_Station_jar/Weather-Station.jar 10

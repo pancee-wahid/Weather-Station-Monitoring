@@ -22,7 +22,7 @@ public class Archive {
     private SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
     private SimpleDateFormat hourFormat = new SimpleDateFormat("HH-mm");
     private ObjectMapper mapper = new ObjectMapper();
-    private List<Map<String, List<String>>> stationsBatches;
+    private Map<Long, Map<String, List<String>>> stationsBatches;
     private int collectedMessages;
     private Schema schema;
 
@@ -32,11 +32,11 @@ public class Archive {
         this.collectedMessages = 0;
         // parse the schema
         schema = parseSchema();
-        // ToDo : change the list to be map from station id to map of time->list_of_msgs_at_this_time
         // store 10k messages temporarily to be written to parquet files as one batch
-        stationsBatches = new ArrayList<>();
-        for (int i = 0; i < 10; i++)
-            stationsBatches.add(new HashMap<>());
+        stationsBatches = new HashMap<>();
+        // Note: we can change stations ids to be any long number
+        for (long i = 1; i <= 10; i++)
+            stationsBatches.put(i, new HashMap<>());
     }
 
     private String getMapKey(long statusTimestamp) {
@@ -50,11 +50,11 @@ public class Archive {
     }
 
 
-    private void writeToParquet(List<Map<String, List<String>>> stationsBatches, Schema schema) throws IOException {
-        for (int i = 1; i <= 10 && !stationsBatches.get(i - 1).isEmpty(); i++) {
-            for (Map.Entry<String, List<String>> stationPartition : stationsBatches.get(i - 1).entrySet()) {
+    private void writeToParquet(Map<Long, Map<String, List<String>>> stationsBatches, Schema schema) throws IOException {
+        for (long i = 1; i <= 10 && !stationsBatches.get(i).isEmpty(); i++) {
+            for (Map.Entry<String, List<String>> stationPartition : stationsBatches.get(i).entrySet()) {
                 // get the path of the file to write to
-                String filePath = PARQUET_FILES_PATH + "s" + i + "\\s" + i + "__" + stationPartition.getKey() + "__p0" + ".parquet";
+                String filePath = PARQUET_FILES_PATH + "s" + i + "/s" + i + "__" + stationPartition.getKey() + "__p0" + ".parquet";
                 File file = new File(filePath);
                 System.out.println(filePath);
                 while (file.exists()) {
@@ -137,15 +137,15 @@ public class Archive {
         Message message = mapper.readValue(value, Message.class);
         String key = getMapKey(message.status_timestamp);
 
-        if (stationsBatches.get((int) message.station_id - 1).containsKey(key)) {
-            stationsBatches.get((int) message.station_id - 1)
+        if (stationsBatches.get(message.station_id).containsKey(key)) {
+            stationsBatches.get(message.station_id)
                     .get(key)
                     .add(value);
         } else {
-            stationsBatches.get((int) message.station_id - 1)
+            stationsBatches.get(message.station_id)
                     .put(key, new ArrayList<>());
 
-            stationsBatches.get((int) message.station_id - 1)
+            stationsBatches.get(message.station_id)
                     .get(key)
                     .add(value);
 
@@ -155,7 +155,7 @@ public class Archive {
         if (collectedMessages >= BATCH_SIZE) {
             System.out.println("Entering writeToParquet()");
             writeToParquet(stationsBatches, schema);
-            for (int i = 0; i < 10; i++)
+            for (long i = 1; i <= 10; i++)
                 stationsBatches.get(i).clear();
             collectedMessages = 0;
         }
