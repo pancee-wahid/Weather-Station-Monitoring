@@ -1,0 +1,9 @@
+alias python=/usr/bin/python3.10
+sudo apt install python3-pip
+pip install pandas
+pip install pyarrow
+pip install elasticsearch
+pip install elasticsearch_dsl
+sudo apt-get update && sudo apt-get install curl
+curl -XPUT 'http://localhost:9200/status' -H 'Content-Type: application/json' -d '{"mappings": {"properties": {"station_id": {"type": "long"}, "s_no": {"type": "long"}, "battery_status": {"type": "keyword"}, "status_timestamp": {"type": "long"}, "weather_humidity": {"type": "integer"}, "weather_temperature": {"type": "integer"}, "weather_wind_speed": {"type": "integer"}}}}'
+es_write.py
