@@ -18,14 +18,14 @@ public class RainDetector {
     public static void main(String[] args) throws JsonProcessingException {
         // set up Kafka producer
         Properties producerProperties = new Properties();
-        producerProperties.setProperty(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, "127.0.0.1:9092");
+        producerProperties.setProperty(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, "kafka:9092");
         producerProperties.put("key.serializer", "org.apache.kafka.common.serialization.StringSerializer");
         producerProperties.put("value.serializer", "org.apache.kafka.common.serialization.StringSerializer");
         KafkaProducer<String, String> producer = new KafkaProducer<>(producerProperties);
 
         // set up Kafka consumer
         Properties ConsumerProperties = new Properties();
-        ConsumerProperties.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, "127.0.0.1:9092");
+        ConsumerProperties.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, "kafka:9092");
         ConsumerProperties.put("key.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
         ConsumerProperties.put("value.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
         ConsumerProperties.put("group.id", "test-group");

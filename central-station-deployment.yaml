@@ -1,0 +1,45 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: C:\Windows\system32\kompose.exe convert -f docker-compose.yml
+    kompose.version: 1.28.0 (c4137012e)
+  creationTimestamp: null
+  labels:
+    io.kompose.service: central-station
+  name: central-station
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: central-station
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: C:\Windows\system32\kompose.exe convert -f docker-compose.yml
+        kompose.version: 1.28.0 (c4137012e)
+      creationTimestamp: null
+      labels:
+        io.kompose.network/weather-station-monitoring-default: "true"
+        io.kompose.service: central-station
+    spec:
+      containers:
+        - image: central-station-image:latest
+          name: central-station
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 8092
+          resources: {}
+          volumeMounts:
+            - mountPath: /bitcask
+              name: weather-stations
+            - mountPath: /parquet-files
+              name: weather-stations
+      restartPolicy: Always
+      volumes:
+        - name: weather-stations
+          persistentVolumeClaim:
+            claimName: weather-stations
+status: {}

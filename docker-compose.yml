@@ -1,146 +1,121 @@
-version: '3'
+version: '1'
 services:
   zookeeper:
-    image: 'docker.io/bitnami/zookeeper:3.8'
-    container_name: kafka-zookeeper-1
+    image: docker.io/bitnami/zookeeper:latest
+    container_name: zookeeper
     ports:
       - '2181:2181'
-    networks:
-      - health
     environment:
       - ALLOW_ANONYMOUS_LOGIN=yes
 
   kafka:
-    image: 'docker.io/bitnami/kafka:3.4'
-    container_name: kafka-kafka-1
+    image: docker.io/bitnami/kafka:latest
+    container_name: kafka
     ports:
       - '9092:9092'
-    networks:
-      - health
     environment:
       - KAFKA_CFG_ZOOKEEPER_CONNECT=zookeeper:2181
+      - KAFKA_ENABLE_KRAFT=no
       - ALLOW_PLAINTEXT_LISTENER=yes
+      - KAFKA_CFG_LISTENERS=PLAINTEXT://:9092
       - KAFKA_CFG_ADVERTISED_LISTENERS=PLAINTEXT://kafka:9092
+      - KAFKA_CFG_AUTO_CREATE_TOPICS_ENABLE=true
     depends_on:
       - zookeeper
       
-  weather_station_1:
+  weather-station-1:
     image: 'weather-station-1-image:latest'
     container_name: weather-station-1
     ports:
       - '8081:8081'
-    networks:
-      - health
     depends_on: 
       - kafka
   
-  weather_station_2:
+  weather-station-2:
     image: 'weather-station-2-image:latest'
     container_name: weather-station-2
     ports:
       - '8082:8082'
-    networks:
-      - health
     depends_on: 
       - kafka
 
-  weather_station_3:
+  weather-station-3:
     image: 'weather-station-3-image:latest'
     container_name: weather-station-3
     ports:
       - '8083:8083'
-    networks:
-      - health
     depends_on: 
       - kafka
 
-  weather_station_4:
+  weather-station-4:
     image: 'weather-station-4-image:latest'
     container_name: weather-station-4
     ports:
       - '8084:8084'
-    networks:
-      - health
     depends_on: 
       - kafka
 
-  weather_station_5:
+  weather-station-5:
     image: 'weather-station-5-image:latest'
     container_name: weather-station-5
     ports:
       - '8085:8085'
-    networks:
-      - health
     depends_on: 
       - kafka
 
-  weather_station_6:
+  weather-station-6:
     image: 'weather-station-6-image:latest'
     container_name: weather-station-6
     ports:
       - '8086:8086'
-    networks:
-      - health
     depends_on: 
       - kafka
 
-  weather_station_7:
+  weather-station-7:
     image: 'weather-station-7-image:latest'
     container_name: weather-station-7
     ports:
       - '8087:8087'
-    networks:
-      - health
     depends_on: 
       - kafka
 
-  weather_station_8:
+  weather-station-8:
     image: 'weather-station-8-image:latest'
     container_name: weather-station-8
     ports:
       - '8088:8088'
-    networks:
-      - health
     depends_on: 
       - kafka
 
-  weather_station_9:
+  weather-station-9:
     image: 'weather-station-9-image:latest'
     container_name: weather-station-9
     ports:
       - '8089:8089'
-    networks:
-      - health
     depends_on: 
       - kafka
 
-  weather_station_10:
+  weather-station-10:
     image: 'weather-station-10-image:latest'
     container_name: weather-station-10
     ports:
       - '8090:8090'
-    networks:
-      - health
     depends_on: 
       - kafka
 
-  rain_detector:
+  rain-detector:
     image: 'rain-detector-image:latest'
     container_name: rain-detector
     ports:
       - '8091:8091'
-    networks:
-      - health
     depends_on: 
       - kafka
   
-  central_station:
+  central-station:
     image: 'central-station-image:latest'
     container_name: central-station
     ports:
       - '8092:8092'
-    networks:
-      - health
     depends_on: 
       - kafka
     volumes:
@@ -149,7 +124,3 @@ services:
   
 volumes:
   weather_stations:
-
-networks:
-  health:
-    driver: bridge

@@ -1,0 +1,35 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: C:\Windows\system32\kompose.exe convert -f docker-compose.yml
+    kompose.version: 1.28.0 (c4137012e)
+  creationTimestamp: null
+  labels:
+    io.kompose.service: weather-station-5
+  name: weather-station-5
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: weather-station-5
+  strategy: {}
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: C:\Windows\system32\kompose.exe convert -f docker-compose.yml
+        kompose.version: 1.28.0 (c4137012e)
+      creationTimestamp: null
+      labels:
+        io.kompose.network/weather-station-monitoring-default: "true"
+        io.kompose.service: weather-station-5
+    spec:
+      containers:
+        - image: weather-station-5-image:latest
+          name: weather-station-5
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 8085
+          resources: {}
+      restartPolicy: Always
+status: {}

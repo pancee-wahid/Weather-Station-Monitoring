@@ -1,0 +1,64 @@
+-- Enable Hyper-V --
+Enable-WindowsOptionalFeature -Online -FeatureName Microsoft-Hyper-V -All
+
+
+
+-- create services --
+kubectl apply -f zookeeper-service.yaml
+kubectl apply -f kafka-service.yaml
+kubectl apply -f central-station-service.yaml
+kubectl apply -f rain-detector-service.yaml
+kubectl apply -f weather-station-1-service.yaml
+kubectl apply -f weather-station-2-service.yaml
+kubectl apply -f weather-station-3-service.yaml
+kubectl apply -f weather-station-4-service.yaml
+kubectl apply -f weather-station-5-service.yaml
+kubectl apply -f weather-station-6-service.yaml
+kubectl apply -f weather-station-7-service.yaml
+kubectl apply -f weather-station-8-service.yaml
+kubectl apply -f weather-station-9-service.yaml
+kubectl apply -f weather-station-10-service.yaml
+
+-- create deployments --
+kubectl apply -f zookeeper-deployment.yaml
+kubectl apply -f kafka-deployment.yaml
+kubectl apply -f central-station-deployment.yaml
+kubectl apply -f weather-station-monitoring-default-networkpolicy.yaml
+kubectl apply -f weather-stations-persistentvolumeclaim.yaml
+kubectl apply -f rain-detector-deployment.yaml
+kubectl apply -f weather-station-1-deployment.yaml
+kubectl apply -f weather-station-2-deployment.yaml
+kubectl apply -f weather-station-3-deployment.yaml
+kubectl apply -f weather-station-4-deployment.yaml
+kubectl apply -f weather-station-5-deployment.yaml
+kubectl apply -f weather-station-6-deployment.yaml
+kubectl apply -f weather-station-7-deployment.yaml
+kubectl apply -f weather-station-8-deployment.yaml
+kubectl apply -f weather-station-9-deployment.yaml
+kubectl apply -f weather-station-10-deployment.yaml
+
+-- delete --
+kubectl delete deployment <dep-name>
+kubectl delete service <srv-name>
+
+-- get --
+kubectl get pods -o wide
+
+-- build docker images --
+docker build -t central-station-image .
+docker build -t rain-detector-image .
+docker build -t weather-station-1-image .
+docker build -t weather-station-2-image .
+docker build -t weather-station-3-image .
+docker build -t weather-station-4-image .
+docker build -t weather-station-5-image .
+docker build -t weather-station-6-image .
+docker build -t weather-station-7-image .
+docker build -t weather-station-8-image .
+docker build -t weather-station-9-image .
+docker build -t weather-station-10-image .
+
+kubectl logs <pod-name>
+
+kubectl delete <pods/deployments/services> --all 
+kubectl delete --all all

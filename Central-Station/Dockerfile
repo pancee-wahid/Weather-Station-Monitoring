@@ -1,6 +1,6 @@
 FROM openjdk:19
 
-WORKDIR /usr/src/myapp
+WORKDIR /usr/src/bitcask
 
 COPY out ./out
 

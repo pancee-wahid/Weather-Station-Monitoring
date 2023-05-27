@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    kompose.cmd: C:\Windows\system32\kompose.exe convert -f docker-compose.yml
+    kompose.version: 1.28.0 (c4137012e)
+  creationTimestamp: null
+  labels:
+    io.kompose.service: weather-station-9
+  name: weather-station-9
+spec:
+  ports:
+    - name: "8089"
+      port: 8089
+      targetPort: 8089
+  selector:
+    io.kompose.service: weather-station-9
+status:
+  loadBalancer: {}

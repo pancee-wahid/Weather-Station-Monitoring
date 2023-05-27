@@ -207,11 +207,12 @@ public class Bitcask {
                 currentLogName = LOG_FILE_PREFIX + appendingTimestamp;
                 File folder = new File(BITCASK_LOG_PATH);
                 File[] allFiles = folder.listFiles();
-                numberOfCurrentLogs = allFiles == null? 0 : 1;
+                numberOfCurrentLogs = (allFiles == null) ? 0 : 1;
                 currentByte = 0;
             } else {
                 File file = new File(BITCASK_LOG_PATH + currentLogName + FILES_EXTENSION);
                 if (file.exists() && (file.length() + recordLength > MAX_LOG_FILE_SIZE)) {
+                    System.out.println("Basel");
                     writeHintFile(BITCASK_LOG_PATH + HINT_FILE_PREFIX + currentLogName + FILES_EXTENSION, inMemoryHashmap);
                     currentLogName = LOG_FILE_PREFIX + appendingTimestamp;
                     numberOfCurrentLogs++;
