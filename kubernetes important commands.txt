@@ -1,8 +1,6 @@
 -- Enable Hyper-V --
 Enable-WindowsOptionalFeature -Online -FeatureName Microsoft-Hyper-V -All
 
-
-
 -- create services --
 kubectl apply -f zookeeper-service.yaml
 kubectl apply -f kafka-service.yaml

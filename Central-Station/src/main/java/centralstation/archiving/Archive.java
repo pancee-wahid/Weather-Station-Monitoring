@@ -54,7 +54,7 @@ public class Archive {
         for (long i = 1; i <= 10 && !stationsBatches.get(i).isEmpty(); i++) {
             for (Map.Entry<String, List<String>> stationPartition : stationsBatches.get(i).entrySet()) {
                 // get the path of the file to write to
-                String filePath = PARQUET_FILES_PATH + "s" + i + "/s" + i + "__" + stationPartition.getKey() + "__p0" + ".parquet";
+                String filePath = PARQUET_FILES_PATH + "s" + i + "\\s" + i + "__" + stationPartition.getKey() + "__p0" + ".parquet";
                 File file = new File(filePath);
                 System.out.println(filePath);
                 while (file.exists()) {

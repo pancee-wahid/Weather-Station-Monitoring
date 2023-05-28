@@ -15,21 +15,21 @@ import java.util.Collections;
 import java.util.Properties;
 
 public class CentralStation {
-    private static final String BITCASK_LOG_PATH = "/bitcask/";
+    private static final String BITCASK_LOG_PATH = "bitcask\\";
     private static final int MAX_LOG_FILE_SIZE = 100000; // 100 KB
-    private static final int MAX_LOG_FILE_COUNT = 3; // maximum number of log files to keep before starting compaction
+    private static final int MAX_LOG_FILE_COUNT = 5; // maximum number of log files to keep before starting compaction
     private static final int NUM_OF_STATIONS = 10;
-    private static final String PARQUET_FILES_PATH = "/parquet-files/";
-    private static final int BATCH_SIZE = 1000;
+    private static final String PARQUET_FILES_PATH = "parquet-files\\";
+    private static final int BATCH_SIZE = 10000;
     private static ObjectMapper mapper = new ObjectMapper();
 
     public static void main(String[] args) throws IOException {
         // set up Kafka consumer
         Properties ConsumerProperties = new Properties();
-        ConsumerProperties.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, "kafka:9092");
+        ConsumerProperties.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, "127.0.0.1:9092");
         ConsumerProperties.put("key.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
         ConsumerProperties.put("value.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
-        ConsumerProperties.put("group.id", "test-group-1");
+        ConsumerProperties.put("group.id", "test-group-3");
         KafkaConsumer<String, String> consumer = new KafkaConsumer<>(ConsumerProperties);
 
         // subscribe to Kafka topic
