@@ -1,6 +1,13 @@
 -- Enable Hyper-V --
 Enable-WindowsOptionalFeature -Online -FeatureName Microsoft-Hyper-V -All
 
+-- convert docker-compose.yaml --
+kompose convert
+
+-- minikube --
+minikube start --nodes 2 -p <name>
+kubectl get nodes
+
 -- create services --
 kubectl apply -f zookeeper-service.yaml
 kubectl apply -f kafka-service.yaml

@@ -28,7 +28,7 @@ public class RainDetector {
         ConsumerProperties.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, "kafka:9092");
         ConsumerProperties.put("key.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
         ConsumerProperties.put("value.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
-        ConsumerProperties.put("group.id", "test-group");
+        ConsumerProperties.put("group.id", "rain-detection");
         KafkaConsumer<String, String> consumer = new KafkaConsumer<>(ConsumerProperties);
 
         // subscribe to Kafka topic
@@ -45,9 +45,9 @@ public class RainDetector {
                 if (message.weather.humidity > 70) {
                     ProducerRecord<String, String> record = new ProducerRecord<>("rain-detection", r.value());
                     producer.send(record);
+                    System.out.println(r.value());
                 }
             }
         }
-
     }
 }
