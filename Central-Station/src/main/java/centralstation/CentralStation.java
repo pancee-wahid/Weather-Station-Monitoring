@@ -16,7 +16,7 @@ import java.util.Properties;
 
 public class CentralStation {
     private static final String BITCASK_LOG_PATH = "bitcask\\";
-    private static final int MAX_LOG_FILE_SIZE = 100000; // 100 KB
+    private static final int MAX_LOG_FILE_SIZE = 50000; // 50 KB
     private static final int MAX_LOG_FILE_COUNT = 5; // maximum number of log files to keep before starting compaction
     private static final int NUM_OF_STATIONS = 10;
     private static final String PARQUET_FILES_PATH = "parquet-files\\";
@@ -29,7 +29,7 @@ public class CentralStation {
         ConsumerProperties.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, "127.0.0.1:9092");
         ConsumerProperties.put("key.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
         ConsumerProperties.put("value.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
-        ConsumerProperties.put("group.id", "test-group-3");
+        ConsumerProperties.put("group.id", "central-station");
         KafkaConsumer<String, String> consumer = new KafkaConsumer<>(ConsumerProperties);
 
         // subscribe to Kafka topic

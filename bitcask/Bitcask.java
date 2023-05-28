@@ -37,93 +37,92 @@ public class Bitcask {
         recover();
     }
 
-
-    private void recover() {
-        System.out.println("entered recover()");
-        File folder = new File(BITCASK_LOG_PATH);
-        File[] allFiles = folder.listFiles();
-        if (allFiles == null) {
-            System.out.println("No log files in \"" + BITCASK_LOG_PATH + "\"");
-            return;
-        }
-        List<String> hintFilesNames = new ArrayList<>();
-        for (File file : allFiles) {
-            if (file.isFile())
-                file.delete();
-        }
-    }
-
-//    private void recover() throws IOException {
-//        // get log and hint files in bitcask folder
+//    private void recover() {
+//        System.out.println("entered recover()");
 //        File folder = new File(BITCASK_LOG_PATH);
 //        File[] allFiles = folder.listFiles();
 //        if (allFiles == null) {
-//            System.out.println("No log files in \"" + BITCASK_LOG_PATH + "\" to recover from.\n Starting Normally.");
+//            System.out.println("No log files in \"" + BITCASK_LOG_PATH + "\"");
 //            return;
 //        }
-//        Pattern pattern = Pattern.compile("\\d+");
-//        List<Long> hintFiles = new ArrayList<>();
-//        List<Long> logFiles = new ArrayList<>();
-//        Matcher matcher;
-//        long id;
+//        List<String> hintFilesNames = new ArrayList<>();
 //        for (File file : allFiles) {
-//            if (!file.isFile())
-//                continue;
-//            // ---- this needs to be edited
-//            if (file.getName().contains("merged")) {
-//                file.renameTo(new File(file.getName().replace("merged_", "")));
-//            }
-//            // ----
-//            matcher = pattern.matcher(file.getName());
-//            if (!matcher.find())
-//                continue;
-//            id = Long.parseLong(matcher.group());
-//            if (file.getName().contains(HINT_FILE_PREFIX))
-//                hintFiles.add(id);
-//            else if (file.getName().contains(LOG_FILE_PREFIX))
-//                logFiles.add(id);
+//            if (file.isFile())
+//                file.delete();
 //        }
-//
-//        // if no log or hint files, return
-//        if (logFiles.size() == 0 || hintFiles.size() == 0) {
-//            System.out.println("No log files in \"" + BITCASK_LOG_PATH + "\" to recover from.\n Starting Normally.");
-//            return;
-//        }
-//
-//        // get the files that don't have a hint file
-//        List<Long> filesWithoutHint = new ArrayList<>();
-//        for (Long f : logFiles) {
-//            if (!hintFiles.contains(f))
-//                filesWithoutHint.add(f);
-//        }
-//
-//        // construct a hashmap for the files that don't have hint files
-//        Map<Long, RecentLocation> compactedHintFile = new HashMap<>();
-//        for (Long f : filesWithoutHint)
-//            readLogFile(f, compactedHintFile);
-//
-//        // merge these hint files
-//        // get the recent locations of all keys using the saved hint files
-//        String fileName;
-//        for (int i = hintFiles.size() - 1; i >= 0; i--) {
-//            fileName = BITCASK_LOG_PATH + HINT_FILE_PREFIX + LOG_FILE_PREFIX + hintFiles.get(i) + FILES_EXTENSION;
-//            readHintFile(fileName, compactedHintFile);
-//        }
-//
-//        // generate the new merged file and the new hint file
-//        Collections.sort(logFiles);
-//        String mergedFilePath = BITCASK_LOG_PATH + "merged_" + LOG_FILE_PREFIX + logFiles.get(0) + FILES_EXTENSION;
-//        String mergedHintFilePath = BITCASK_LOG_PATH + "merged_" + HINT_FILE_PREFIX + LOG_FILE_PREFIX + logFiles.get(0) + FILES_EXTENSION;
-//        merge(mergedFilePath, mergedHintFilePath, compactedHintFile);
-//
-//        // delete and rename
-//        deleteOldFiles();
-//        File file = new File(mergedFilePath);
-//        file.renameTo(new File(mergedFilePath.replace("merged_", "")));
-//        file = new File(mergedHintFilePath);
-//        file.renameTo(new File(mergedHintFilePath.replace("merged_", "")));
-//        recovered = true;
 //    }
+
+    private void recover() throws IOException {
+        // get log and hint files in bitcask folder
+        File folder = new File(BITCASK_LOG_PATH);
+        File[] allFiles = folder.listFiles();
+        if (allFiles == null) {
+            System.out.println("No log files in \"" + BITCASK_LOG_PATH + "\" to recover from.\n Starting Normally.");
+            return;
+        }
+        Pattern pattern = Pattern.compile("\\d+");
+        List<Long> hintFiles = new ArrayList<>();
+        List<Long> logFiles = new ArrayList<>();
+        Matcher matcher;
+        long id;
+        for (File file : allFiles) {
+            if (!file.isFile())
+                continue;
+
+            if (file.getName().contains("merged")) {
+                file.renameTo(new File(file.getName().replace("merged_", "")));
+            }
+
+            matcher = pattern.matcher(file.getName());
+            if (!matcher.find())
+                continue;
+            id = Long.parseLong(matcher.group());
+            if (file.getName().contains(HINT_FILE_PREFIX))
+                hintFiles.add(id);
+            else if (file.getName().contains(LOG_FILE_PREFIX))
+                logFiles.add(id);
+        }
+
+        // if no log or hint files, return
+        if (logFiles.size() == 0 || hintFiles.size() == 0) {
+            System.out.println("No log files in \"" + BITCASK_LOG_PATH + "\" to recover from.\n Starting Normally.");
+            return;
+        }
+
+        // get the files that don't have a hint file
+        List<Long> filesWithoutHint = new ArrayList<>();
+        for (Long f : logFiles) {
+            if (!hintFiles.contains(f))
+                filesWithoutHint.add(f);
+        }
+
+        // construct a hashmap for the files that don't have hint files
+        Map<Long, RecentLocation> compactedHintFile = new HashMap<>();
+        for (Long f : filesWithoutHint)
+            readLogFile(f, compactedHintFile);
+
+        // merge these hint files
+        // get the recent locations of all keys using the saved hint files
+        String fileName;
+        for (int i = hintFiles.size() - 1; i >= 0; i--) {
+            fileName = BITCASK_LOG_PATH + HINT_FILE_PREFIX + LOG_FILE_PREFIX + hintFiles.get(i) + FILES_EXTENSION;
+            readHintFile(fileName, compactedHintFile);
+        }
+
+        // generate the new merged file and the new hint file
+        Collections.sort(logFiles);
+        String mergedFilePath = BITCASK_LOG_PATH + "merged_" + LOG_FILE_PREFIX + logFiles.get(0) + FILES_EXTENSION;
+        String mergedHintFilePath = BITCASK_LOG_PATH + "merged_" + HINT_FILE_PREFIX + LOG_FILE_PREFIX + logFiles.get(0) + FILES_EXTENSION;
+        merge(mergedFilePath, mergedHintFilePath, compactedHintFile);
+
+        // delete and rename
+        deleteOldFiles();
+        File file = new File(mergedFilePath);
+        file.renameTo(new File(mergedFilePath.replace("merged_", "")));
+        file = new File(mergedHintFilePath);
+        file.renameTo(new File(mergedHintFilePath.replace("merged_", "")));
+        recovered = true;
+    }
 
     private void deleteOldFiles() {
         File folder = new File(BITCASK_LOG_PATH);

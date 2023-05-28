@@ -4,7 +4,28 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="709b33f3-6fe9-4ee0-83e9-cf2c532c25ed" name="Changes" comment="" />
+    <list default="true" id="709b33f3-6fe9-4ee0-83e9-cf2c532c25ed" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/bitcask/Bitcask.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Central-Station/bitcask/hint_log_1685218210178.bin" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Central-Station/bitcask/hint_log_1685218429728.bin" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Central-Station/bitcask/hint_log_1685218492120.bin" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Central-Station/bitcask/hint_log_1685218555764.bin" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Central-Station/bitcask/hint_log_1685226812148.bin" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Central-Station/bitcask/hint_log_1685228408831.bin" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Central-Station/bitcask/log_1685218210178.bin" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Central-Station/bitcask/log_1685218429728.bin" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Central-Station/bitcask/log_1685218492120.bin" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Central-Station/bitcask/log_1685218555764.bin" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Central-Station/bitcask/log_1685218617803.bin" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Central-Station/bitcask/log_1685226812148.bin" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Central-Station/bitcask/log_1685228408831.bin" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Central-Station/bitcask/log_1685228464806.bin" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Central-Station/src/main/java/centralstation/CentralStation.java" beforeDir="false" afterPath="$PROJECT_DIR$/Central-Station/src/main/java/centralstation/CentralStation.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Central-Station/src/main/java/centralstation/bitcask/Bitcask.java" beforeDir="false" afterPath="$PROJECT_DIR$/Central-Station/src/main/java/centralstation/bitcask/Bitcask.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Kafka-Processor/Rain-Detector.iml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Rain-Detector/src/main/java/raindetector/RainDetector.java" beforeDir="false" afterPath="$PROJECT_DIR$/Rain-Detector/src/main/java/raindetector/RainDetector.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Weather-Station/src/main/java/weatherstation/WeatherStation.java" beforeDir="false" afterPath="$PROJECT_DIR$/Weather-Station/src/main/java/weatherstation/WeatherStation.java" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -12,6 +33,9 @@
   </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="KubernetesApiPersistence">
+    <option name="context" value="minikube" />
   </component>
   <component name="MarkdownSettingsMigration">
     <option name="stateVersion" value="1" />
@@ -28,17 +52,34 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
-    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
-    &quot;project.structure.last.edited&quot;: &quot;Project&quot;,
-    &quot;project.structure.proportion&quot;: &quot;0.0&quot;,
-    &quot;project.structure.side.proportion&quot;: &quot;0.0&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "RunOnceActivity.OpenProjectViewOnStart": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "WebServerToolWindowFactoryState": "false",
+    "git-widget-placeholder": "main",
+    "last_opened_file_path": "D:/Projects/Weather-Station-Monitoring/Central-Station",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "project.structure.last.edited": "Project",
+    "project.structure.proportion": "0.0",
+    "project.structure.side.proportion": "0.0",
+    "vue.rearranger.settings.migration": "true"
   }
-}</component>
+}]]></component>
+  <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="D:\Projects\Weather-Station-Monitoring\Central-Station" />
+    </key>
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="D:\Projects\Weather-Station-Monitoring\bitcask" />
+      <recent name="D:\Projects\Weather-Station-Monitoring\K8s yaml files" />
+      <recent name="D:\Projects\Weather-Station-Monitoring\Central-Station" />
+    </key>
+  </component>
   <component name="RunManager">
     <configuration default="true" type="JetRunConfigurationType">
       <module name="Weather-Station-Monitoring" />
@@ -66,6 +107,7 @@
       <workItem from="1685126255962" duration="568000" />
       <workItem from="1685127367282" duration="71000" />
       <workItem from="1685147062901" duration="668000" />
+      <workItem from="1685297269623" duration="6271000" />
     </task>
     <servers />
   </component>
