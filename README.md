@@ -162,19 +162,28 @@ The weather stations monitoring system shown in the figure was implemented in th
 >
 > 5. Upload the data files of each weather station using a suitable
 > index pattern.
+> 
 > ![](readme/mappings.png)
+> 
 > 6. Used the **count()** metric to visualize the percent of different
 > battery statuses ("low", "medium", "high") and the donut-shaped chart sliced by the values of
 > **"battery_status"**.
 > 7. Used a special formula to estimate the dropped messages using the
 **"s_no"** field and the metrics **max() & count().**
 > <div style="text-align: center;">1 + (count() / max(s_no))</div>
+>
 > ### Analysis Results
+> ![](readme/status-analysis-1.png)
+> ![](readme/status-analysis-2.png)
+> ![](readme/status-analysis-3.png)
+> ![](readme/status-analysis-4.png)
+> ![](readme/status-analysis-5.png)
+> <div style="text-align: center;">
+> <img src="readme/status-analysis-6.png" width="75%">
+> </div>
+> 
 >
->
->
-> **Source Code:**
->
+> #### [Source Code](Weather-Statuses-Analysis/code)
 > The python script can be found in the project Github repository along with a notes text file to tell what to install in the container.
 
 
