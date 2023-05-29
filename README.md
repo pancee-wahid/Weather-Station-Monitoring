@@ -201,6 +201,7 @@ The weather stations monitoring system shown in the figure was implemented in th
 >> weather-station-5, weather-station-6, weather-station-7,
 >> weather-station-8, weather-station-9, weather-station-10,
 >> rain-detector and central-station.
+>>
 >> ![](readme/docker-compose-services.png)
 >>
 >> Zookeeper and Kafka services are as shown:
