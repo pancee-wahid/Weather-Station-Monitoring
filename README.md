@@ -91,7 +91,7 @@ The weather stations monitoring system shown in the figure was implemented in th
 >  ![](readme/bitcask_data_structure.png)
 >
 > #### [Source Code](Central-Station/src/main/java/centralstation/bitcask)
-> The source code can be found in the project Github repository along
+> The source code can be found in the project repository along
 > with [sample](Central-Station/bitcask) BitCask LSM directory and the video mentioned earlier.
 >
 > ### Archiving of all Weather Statuses in Parquet Files
@@ -138,7 +138,7 @@ The weather stations monitoring system shown in the figure was implemented in th
 > ![](readme/parquet-sample-folder.png)
 >
 > #### [Source Code](Central-Station/src/main/java/centralstation/archiving)
-> The source code can be found in the project Github repository along
+> The source code can be found in the project repository along
 > with some [sample](Central-Station/parquet-files) Parquet files.
 
 
@@ -159,12 +159,9 @@ The weather stations monitoring system shown in the figure was implemented in th
 > elasticsearch using a python script.
 > 4. The python script listens on the parquet files folder to get any new file, read it into pandas
 > data frame, connect to elasticsearch and then index this file.
->
 > 5. Upload the data files of each weather station using a suitable
 > index pattern.
-> 
 > ![](readme/mappings.png)
-> 
 > 6. Used the **count()** metric to visualize the percent of different
 > battery statuses ("low", "medium", "high") and the donut-shaped chart sliced by the values of
 > **"battery_status"**.
@@ -178,13 +175,11 @@ The weather stations monitoring system shown in the figure was implemented in th
 > ![](readme/status-analysis-3.png)
 > ![](readme/status-analysis-4.png)
 > ![](readme/status-analysis-5.png)
-> <div style="text-align: center;">
-> <img src="readme/status-analysis-6.png" width="75%">
-> </div>
+> ![](readme/status-analysis-6.png)
 > 
 >
 > #### [Source Code](Weather-Statuses-Analysis/code)
-> The python script can be found in the project Github repository along with a notes text file to tell what to install in the container.
+> The python script can be found in the project repository along with a notes text file to tell what to install in the container.
 
 
 ## F. Deploy Using Kubernetes
